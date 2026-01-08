@@ -1,1 +1,14 @@
 package adaptor
+
+import (
+	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/usecase"
+	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/pkg/utils"
+	"go.uber.org/zap"
+)
+
+type Adaptor struct {
+}
+
+func NewAdaptor(useCase *usecase.UseCase, log *zap.Logger, config *utils.Configuration) *Adaptor {
+	return &Adaptor{}
+}
