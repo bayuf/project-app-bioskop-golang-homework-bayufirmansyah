@@ -1,2 +1,2 @@
-# project-app-bioskop-golang-homework-bayufirmansyah
+# Project App Ticket System Bioskop Golang
 System Ticket Bioskop
