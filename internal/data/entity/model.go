@@ -1,11 +1,15 @@
 package entity
 
-import "time"
+import (
+	"time"
+
+	"github.com/google/uuid"
+)
 
 type Model struct {
-	ID         int
-	Name       int
-	Created_At time.Time
-	Updated_At time.Time
-	Deleted_At time.Time
+	ID         uuid.UUID `json:"id"`
+	Name       string    `json:"name"`
+	Created_At time.Time `json:"created_at"`
+	Updated_At time.Time `json:"updated_at"`
+	Deleted_At time.Time `json:"deleted_at"`
 }

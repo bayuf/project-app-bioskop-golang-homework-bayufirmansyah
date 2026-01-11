@@ -25,6 +25,7 @@ func Wiring(repo *repository.Repository, logger *zap.Logger, config *utils.Confi
 }
 
 func WireAPI(route *chi.Mux, repo *repository.Repository, logger *zap.Logger, config *utils.Configuration) {
+	// init layer
 	uc := usecase.NewUsecase(repo, logger)
 	adaptor := adaptor.NewAdaptor(uc, logger, config)
 

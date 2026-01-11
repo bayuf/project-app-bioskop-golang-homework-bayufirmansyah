@@ -1,0 +1,30 @@
+{
+  "movies": [
+    {
+      "id": 1,
+      "title": "judul",
+      "poster_url": "path gambar",
+      "rating": 5.0,
+      "review_count": 1,
+      "duration": "durasi",
+      "genres": ["genre"]
+    },
+    {
+      "id": 2,
+      "title": "judul",
+      "poster_url": "path gambar",
+      "rating": 5.0,
+      "review_count": 1,
+      "duration": "durasi",
+      "genres": ["genre"]
+    }
+  ],
+  "message": "success",
+  "pagination": {
+    "current_page": 1,
+    "limit": 2,
+    "total_pages": 2,
+    "total_records": 6
+  },
+  "status": true
+}
