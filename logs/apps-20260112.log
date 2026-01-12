@@ -29,3 +29,6 @@
 2026-01-12T00:28:39.848+0700	INFO	repository/auth.go:131	Verification code added successfully
 2026-01-12T00:31:48.989+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T00:31:48.989+0700"}
 2026-01-12T00:32:00.629+0700	INFO	repository/auth.go:131	Verification code added successfully
+2026-01-12T12:55:40.705+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T12:55:40.705+0700"}
+2026-01-12T12:57:41.675+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T12:57:41.675+0700"}
+2026-01-12T13:01:02.715+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T13:01:02.715+0700"}

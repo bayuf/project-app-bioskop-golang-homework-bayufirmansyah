@@ -79,3 +79,12 @@ func (a *AuthAdaptor) LoginUser(w http.ResponseWriter, r *http.Request) {
 
 	utils.ResponseSuccess(w, http.StatusCreated, "success", nil)
 }
+
+func (a *AuthAdaptor) LogoutUser(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "POST" {
+		utils.ResponseFailed(w, http.StatusMethodNotAllowed, "method not allowed", nil)
+		return
+	}
+
+	utils.ResponseSuccess(w, http.StatusCreated, "success", nil)
+}

@@ -5,6 +5,7 @@ import (
 
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/adaptor"
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/data/repository"
+	mwCustom "github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/middleware"
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/usecase"
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/pkg/utils"
 	"github.com/go-chi/chi/middleware"
@@ -43,16 +44,26 @@ func WireAPI(r *chi.Mux, repo *repository.Repository, logger *zap.Logger, config
 	// init layer
 	uc := usecase.NewUsecase(repo, logger, config, emailJob)
 	adaptor := adaptor.NewAdaptor(uc, logger, config)
+	mw := mwCustom.NewCustomMiddleware(repo, logger)
 
 	// chi middleware
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
 	// routers
+	r.Group(func(r chi.Router) {
+
+	})
 	r.Post("/register", adaptor.AuthAdaptor.RegisterUser)
+
 	// auth
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/login", adaptor.AuthAdaptor.LoginUser)
-		r.Post("/logout", adaptor.AuthAdaptor.LoginUser)
+
+		r.Group(func(r chi.Router) {
+			r.Use(mw.AuthMiddleware.SessionAuthMiddleware())
+			r.Post("/logout", adaptor.AuthAdaptor.LoginUser)
+		})
 	})
+
 }
