@@ -1,33 +1,58 @@
 package wire
 
 import (
+	"sync"
+
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/adaptor"
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/data/repository"
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/usecase"
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/pkg/utils"
+	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
 	"go.uber.org/zap"
 )
 
 type App struct {
 	Route *chi.Mux
+	Stop  chan struct{}
+	WG    *sync.WaitGroup
 }
 
 func Wiring(repo *repository.Repository, logger *zap.Logger, config *utils.Configuration) *App {
 	// init
 	r := chi.NewRouter()
 
-	WireAPI(r, repo, logger, config)
+	emailJobs := make(chan utils.EmailJob, 10) // BUFFER
+	stop := make(chan struct{})
+	metrics := &utils.Metrics{}
+	wg := &sync.WaitGroup{}
+	emailUC := usecase.NewEmailUsecase(logger, config)
+
+	utils.StartEmailWorkers(3, emailJobs, stop, metrics, wg, emailUC)
+
+	WireAPI(r, repo, logger, config, emailJobs)
 
 	return &App{
 		Route: r,
+		Stop:  stop,
+		WG:    wg,
 	}
 }
 
-func WireAPI(route *chi.Mux, repo *repository.Repository, logger *zap.Logger, config *utils.Configuration) {
+func WireAPI(r *chi.Mux, repo *repository.Repository, logger *zap.Logger, config *utils.Configuration, emailJob chan<- utils.EmailJob) {
 	// init layer
-	uc := usecase.NewUsecase(repo, logger)
+	uc := usecase.NewUsecase(repo, logger, config, emailJob)
 	adaptor := adaptor.NewAdaptor(uc, logger, config)
 
-	_ = adaptor
+	// chi middleware
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+
+	// routers
+	r.Post("/register", adaptor.AuthAdaptor.RegisterUser)
+	// auth
+	r.Route("/auth", func(r chi.Router) {
+		r.Post("/login", adaptor.AuthAdaptor.LoginUser)
+		r.Post("/logout", adaptor.AuthAdaptor.LoginUser)
+	})
 }

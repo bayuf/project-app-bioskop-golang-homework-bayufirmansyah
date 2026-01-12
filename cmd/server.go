@@ -28,8 +28,8 @@ func APIServer(app *wire.App, config *utils.Configuration, logger *zap.Logger) {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	// close(app.Stop)
-	// app.WG.Wait()
+	close(app.Stop)
+	app.WG.Wait()
 
 	log.Println("exiting", config.AppName)
 }

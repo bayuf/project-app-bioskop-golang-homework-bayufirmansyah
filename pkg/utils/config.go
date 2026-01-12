@@ -11,6 +11,8 @@ type Configuration struct {
 	Debug       bool
 	PageLimit   int
 	PathLogging string
+	API_URL     string
+	API_KEY     string
 	DB          DatabaseConfiguration
 }
 
@@ -37,6 +39,8 @@ func ReadConfiguration() (*Configuration, error) {
 		Debug:       viper.GetBool("DEBUG"),
 		PageLimit:   viper.GetInt("PAGE_LIMIT"),
 		PathLogging: viper.GetString("PATH_LOGGING"),
+		API_URL:     viper.GetString("API_URL"),
+		API_KEY:     viper.GetString("API_KEY"),
 		DB: DatabaseConfiguration{
 			DBName:   viper.GetString("DB_NAME"),
 			UserName: viper.GetString("DB_USERNAME"),

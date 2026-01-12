@@ -2,12 +2,18 @@ package usecase
 
 import (
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/data/repository"
+	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/pkg/utils"
 	"go.uber.org/zap"
 )
 
 type UseCase struct {
+	*AuthUsecase
+	*EmailUsecase
 }
 
-func NewUsecase(repo *repository.Repository, log *zap.Logger) *UseCase {
-	return &UseCase{}
+func NewUsecase(repo *repository.Repository, log *zap.Logger, config *utils.Configuration, emailJob chan<- utils.EmailJob) *UseCase {
+	return &UseCase{
+		AuthUsecase:  NewAuthUsecase(repo.AuthRepository, log, config, emailJob),
+		EmailUsecase: NewEmailUsecase(log, config),
+	}
 }

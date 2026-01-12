@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/data/entity"
@@ -14,14 +15,18 @@ import (
 )
 
 type AuthUsecase struct {
-	repo   *repository.AuthRepository
-	logger *zap.Logger
+	repo     *repository.AuthRepository
+	logger   *zap.Logger
+	config   *utils.Configuration
+	emailJob chan<- utils.EmailJob
 }
 
-func NewAuthUsecase(repo *repository.AuthRepository, logger *zap.Logger) *AuthUsecase {
+func NewAuthUsecase(repo *repository.AuthRepository, logger *zap.Logger, config *utils.Configuration, emailJob chan<- utils.EmailJob) *AuthUsecase {
 	return &AuthUsecase{
-		repo:   repo,
-		logger: logger,
+		repo:     repo,
+		logger:   logger,
+		config:   config,
+		emailJob: emailJob,
 	}
 }
 
@@ -51,10 +56,12 @@ func (uc *AuthUsecase) LoginUser(ctx context.Context, userData dto.UserLogin) er
 	}
 
 	// check password
-	if !utils.CheckString(userData.Password, user.Password) {
+	if !utils.CheckString(user.Password, userData.Password) {
 		uc.logger.Error("invalid credentials")
-		return err
+		return errors.New("invalid credentials")
 	}
+
+	// =============================OTP==========================================
 
 	// generate codeOTP
 	code, err := utils.GenerateOTP()
@@ -82,6 +89,20 @@ func (uc *AuthUsecase) LoginUser(ctx context.Context, userData dto.UserLogin) er
 	}
 
 	// send OTP via email
+	payload := &dto.Email{
+		To:      user.Email,
+		Name:    user.Name,
+		Subject: "Login Verification Code",
+		Message: fmt.Sprintf("Your login verification code is %s. This code will expire in 5 minutes.", code),
+	}
+
+	select {
+	case uc.emailJob <- utils.EmailJob{Payload: payload}:
+	default:
+		uc.logger.Warn("email job queue full, skipping email",
+			zap.String("email", user.Email),
+		)
+	}
 
 	return nil
 }

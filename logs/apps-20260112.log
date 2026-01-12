@@ -1,0 +1,31 @@
+2026-01-12T00:00:34.585+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T00:00:34.585+0700"}
+2026-01-12T00:03:44.638+0700	INFO	repository/auth.go:26	Registering user	{"email": "bayu19fr@gmail.com"}
+2026-01-12T00:03:44.651+0700	ERROR	adaptor/auth_adaptor.go:47	failed to create new user	{"error": "user already exists"}
+2026-01-12T00:05:49.820+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T00:05:49.820+0700"}
+2026-01-12T00:06:02.983+0700	INFO	repository/auth.go:26	Registering user	{"email": "bayu19fr@gmail.com"}
+2026-01-12T00:06:02.997+0700	ERROR	adaptor/auth_adaptor.go:47	failed to create new user	{"error": "user already exists"}
+2026-01-12T00:07:18.105+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T00:07:18.105+0700"}
+2026-01-12T00:07:29.281+0700	INFO	repository/auth.go:26	Registering user	{"email": "bayu19fr@gmail.com"}
+2026-01-12T00:07:29.287+0700	ERROR	repository/auth.go:33	Failed to register user	{"error": "ERROR: null value in column \"name\" of relation \"users\" violates not-null constraint (SQLSTATE 23502)"}
+2026-01-12T00:07:29.287+0700	ERROR	adaptor/auth_adaptor.go:47	failed to create new user	{"error": "Failed to register user"}
+2026-01-12T00:08:13.089+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T00:08:13.089+0700"}
+2026-01-12T00:08:24.742+0700	INFO	repository/auth.go:26	Registering user	{"email": "bayu19fr@gmail.com"}
+2026-01-12T00:08:24.753+0700	INFO	repository/auth.go:40	User registered successfully	{"email": "bayu19fr@gmail.com"}
+2026-01-12T00:11:11.909+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T00:11:11.909+0700"}
+2026-01-12T00:11:48.668+0700	ERROR	usecase/auth_uc.go:60	invalid credentials
+2026-01-12T00:13:11.638+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T00:13:11.638+0700"}
+2026-01-12T00:13:25.560+0700	ERROR	usecase/auth_uc.go:60	invalid credentials
+2026-01-12T00:13:25.560+0700	ERROR	adaptor/auth_adaptor.go:75	failed to create new user	{"error": "invalid credentials"}
+2026-01-12T00:14:21.650+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T00:14:21.650+0700"}
+2026-01-12T00:14:32.318+0700	ERROR	repository/auth.go:123	Failed to add verification code	{"error": "ERROR: null value in column \"expired_at\" of relation \"verification_codes\" violates not-null constraint (SQLSTATE 23502)"}
+2026-01-12T00:14:32.318+0700	ERROR	adaptor/auth_adaptor.go:75	failed to create new user	{"error": "failed to add verification code"}
+2026-01-12T00:16:02.806+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T00:16:02.806+0700"}
+2026-01-12T00:16:16.171+0700	INFO	repository/auth.go:131	Verification code added successfully
+2026-01-12T00:23:06.291+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T00:23:06.291+0700"}
+2026-01-12T00:23:18.898+0700	INFO	repository/auth.go:131	Verification code added successfully
+2026-01-12T00:26:29.460+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T00:26:29.460+0700"}
+2026-01-12T00:26:47.826+0700	INFO	repository/auth.go:131	Verification code added successfully
+2026-01-12T00:28:27.457+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T00:28:27.457+0700"}
+2026-01-12T00:28:39.848+0700	INFO	repository/auth.go:131	Verification code added successfully
+2026-01-12T00:31:48.989+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T00:31:48.989+0700"}
+2026-01-12T00:32:00.629+0700	INFO	repository/auth.go:131	Verification code added successfully

@@ -7,8 +7,11 @@ import (
 )
 
 type Adaptor struct {
+	*AuthAdaptor
 }
 
 func NewAdaptor(useCase *usecase.UseCase, log *zap.Logger, config *utils.Configuration) *Adaptor {
-	return &Adaptor{}
+	return &Adaptor{
+		AuthAdaptor: NewAuthAdaptor(useCase.AuthUsecase, log, config),
+	}
 }

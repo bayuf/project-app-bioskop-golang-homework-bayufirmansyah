@@ -25,12 +25,13 @@ func NewAuthRepository(db database.DBExecutor, logger *zap.Logger) *AuthReposito
 func (ar *AuthRepository) RegisterUser(ctx context.Context, newUser entity.User) error {
 	ar.logger.Info("Registering user", zap.String("email", newUser.Email))
 
-	query := `INSERT INTO users (email, password) VALUES ($1, $2)`
+	query := `INSERT INTO users (email, name, password_hash) VALUES ($1, $2, $3)`
 
-	commandTag, err := ar.db.Exec(ctx, query, newUser.Email, newUser.Password)
+	commandTag, err := ar.db.Exec(ctx, query, newUser.Email, newUser.Name, newUser.Password)
 	if err != nil {
 		if commandTag.RowsAffected() == 0 {
-			return errors.New("user already exists")
+			ar.logger.Error("Failed to register user", zap.Error(err))
+			return errors.New("Failed to register user")
 		}
 		ar.logger.Error("Failed to register user", zap.Error(err))
 		return err
@@ -113,10 +114,10 @@ func (ar *AuthRepository) RevokeSessionByUserId(ctx context.Context, userId uuid
 
 func (ar *AuthRepository) AddVerificationCode(ctx context.Context, data entity.VerificationCode) error {
 	query := `
-	INSERT INTO verification_codes (id, user_id, code_hash, purpose)
-	VALUES ($1, $2, $3, $4)
+	INSERT INTO verification_codes (id, user_id, code_hash, purpose, expired_at)
+	VALUES ($1, $2, $3, $4, $5)
 	`
-	commandTag, err := ar.db.Exec(ctx, query, data.ID, data.UserID, data.Code, data.Purpose)
+	commandTag, err := ar.db.Exec(ctx, query, data.ID, data.UserID, data.Code, data.Purpose, data.ExpiredAt)
 	if err != nil {
 		if commandTag.RowsAffected() == 0 {
 			ar.logger.Error("Failed to add verification code", zap.Error(err))
