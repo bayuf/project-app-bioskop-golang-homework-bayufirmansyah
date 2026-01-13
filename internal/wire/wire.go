@@ -31,6 +31,9 @@ func Wiring(repo *repository.Repository, logger *zap.Logger, config *utils.Confi
 
 	utils.StartEmailWorkers(3, emailJobs, stop, metrics, wg, emailUC)
 
+	// chi middleware
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
 	WireAPI(r, repo, logger, config, emailJobs)
 
 	return &App{
@@ -46,14 +49,7 @@ func WireAPI(r *chi.Mux, repo *repository.Repository, logger *zap.Logger, config
 	adaptor := adaptor.NewAdaptor(uc, logger, config)
 	mw := mwCustom.NewCustomMiddleware(repo, logger)
 
-	// chi middleware
-	r.Use(middleware.Logger)
-	r.Use(middleware.Recoverer)
-
 	// routers
-	r.Group(func(r chi.Router) {
-
-	})
 	r.Post("/register", adaptor.AuthAdaptor.RegisterUser)
 
 	// auth
@@ -62,8 +58,13 @@ func WireAPI(r *chi.Mux, repo *repository.Repository, logger *zap.Logger, config
 
 		r.Group(func(r chi.Router) {
 			r.Use(mw.AuthMiddleware.SessionAuthMiddleware())
-			r.Post("/logout", adaptor.AuthAdaptor.LoginUser)
+			r.Post("/logout", adaptor.AuthAdaptor.LogoutUser)
 		})
+	})
+
+	r.Route("/cinemas", func(r chi.Router) {
+		r.Get("/{cinema_id}", adaptor.CinemaAdaptor.GetCinema)
+		r.Get("/", adaptor.CinemaAdaptor.GetListCinemas)
 	})
 
 }

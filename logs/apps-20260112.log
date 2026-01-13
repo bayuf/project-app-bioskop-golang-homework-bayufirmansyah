@@ -32,3 +32,30 @@
 2026-01-12T12:55:40.705+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T12:55:40.705+0700"}
 2026-01-12T12:57:41.675+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T12:57:41.675+0700"}
 2026-01-12T13:01:02.715+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T13:01:02.715+0700"}
+2026-01-12T18:06:28.556+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T18:06:28.556+0700"}
+2026-01-12T18:07:36.783+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T18:07:36.783+0700"}
+2026-01-12T18:19:31.157+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T18:19:31.157+0700"}
+2026-01-12T18:19:38.116+0700	ERROR	adaptor/cinema_adaptor.go:37	failed to convert page string to int	{"error": "strconv.Atoi: parsing \"\": invalid syntax"}
+2026-01-12T18:19:59.145+0700	ERROR	adaptor/cinema_adaptor.go:37	failed to convert page string to int	{"error": "strconv.Atoi: parsing \"\": invalid syntax"}
+2026-01-12T18:20:03.643+0700	ERROR	adaptor/cinema_adaptor.go:37	failed to convert page string to int	{"error": "strconv.Atoi: parsing \"\": invalid syntax"}
+2026-01-12T18:21:21.518+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T18:21:21.518+0700"}
+2026-01-12T18:21:28.917+0700	ERROR	adaptor/cinema_adaptor.go:40	failed to convert page string to int	{"error": "strconv.Atoi: parsing \"\": invalid syntax"}
+2026-01-12T18:21:46.383+0700	ERROR	adaptor/cinema_adaptor.go:40	failed to convert page string to int	{"error": "strconv.Atoi: parsing \"\": invalid syntax"}
+2026-01-12T18:22:08.991+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T18:22:08.991+0700"}
+2026-01-12T18:24:08.198+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T18:24:08.198+0700"}
+2026-01-12T18:28:29.849+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T18:28:29.849+0700"}
+2026-01-12T18:35:47.714+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T18:35:47.714+0700"}
+2026-01-12T18:36:22.565+0700	ERROR	adaptor/cinema_adaptor.go:63	failed to convert id string to int	{"error": "strconv.Atoi: parsing \"\": invalid syntax"}
+2026-01-12T18:36:47.390+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T18:36:47.390+0700"}
+2026-01-12T18:36:55.276+0700	ERROR	adaptor/cinema_adaptor.go:63	failed to convert id string to int	{"error": "strconv.Atoi: parsing \"\": invalid syntax"}
+2026-01-12T18:37:33.997+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T18:37:33.997+0700"}
+2026-01-12T18:37:41.207+0700	ERROR	adaptor/cinema_adaptor.go:66	failed to convert id string to int	{"error": "strconv.Atoi: parsing \"\": invalid syntax"}
+2026-01-12T18:37:57.629+0700	ERROR	adaptor/cinema_adaptor.go:66	failed to convert id string to int	{"error": "strconv.Atoi: parsing \"\": invalid syntax"}
+2026-01-12T18:37:59.063+0700	ERROR	adaptor/cinema_adaptor.go:66	failed to convert id string to int	{"error": "strconv.Atoi: parsing \"\": invalid syntax"}
+2026-01-12T18:38:24.438+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T18:38:24.438+0700"}
+2026-01-12T18:38:31.581+0700	ERROR	adaptor/cinema_adaptor.go:66	failed to convert id string to int	{"error": "strconv.Atoi: parsing \"\": invalid syntax"}
+2026-01-12T18:39:51.638+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T18:39:51.636+0700"}
+2026-01-12T18:40:00.793+0700	ERROR	adaptor/cinema_adaptor.go:63	failed to convert id string to int	{"error": "strconv.Atoi: parsing \"\": invalid syntax"}
+2026-01-12T18:40:05.339+0700	ERROR	adaptor/cinema_adaptor.go:63	failed to convert id string to int	{"error": "strconv.Atoi: parsing \"\": invalid syntax"}
+2026-01-12T18:40:53.988+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T18:40:53.988+0700"}
+2026-01-12T18:43:12.129+0700	INFO	database/db.go:53	connected to DB	{"At": "2026-01-12T18:43:12.129+0700"}

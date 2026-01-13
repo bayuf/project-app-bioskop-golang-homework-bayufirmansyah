@@ -94,18 +94,18 @@ func (ar *AuthRepository) GetSessionIdByUserId(ctx context.Context, userId uuid.
 	return &session, nil
 }
 
-func (r *AuthRepository) ValidateSession(ctx context.Context, sessionId uuid.UUID) (*entity.Session, error) {
+func (ar *AuthRepository) ValidateSession(ctx context.Context, sessionId uuid.UUID) (*entity.Session, error) {
 	query := `SELECT s.id, s.user_id
 			FROM sessions s
 			WHERE s.id = $1
 			  AND s.revoked_at IS NULL
 			  AND s.expires_at > NOW();`
 	session := entity.Session{}
-	if err := r.db.QueryRow(context.Background(), query, sessionId).Scan(
+	if err := ar.db.QueryRow(ctx, query, sessionId).Scan(
 		&session.ID,
 		&session.UserID,
 	); err != nil {
-		r.logger.Error("error validate session", zap.Error(err))
+		ar.logger.Error("error validate session", zap.Error(err))
 		return nil, err
 	}
 	return &session, nil
@@ -120,6 +120,24 @@ func (ar *AuthRepository) RevokeSessionByUserId(ctx context.Context, userId uuid
 	expires_at < NOW();
 	`
 	_, err := ar.db.Exec(ctx, query, userId)
+	if err != nil {
+		ar.logger.Error("Failed to revoke session", zap.Error(err))
+		return err
+	}
+
+	ar.logger.Info("Session revoked successfully")
+	return nil
+}
+
+func (ar *AuthRepository) RevokeSessionBySessionId(ctx context.Context, sessionId uuid.UUID) error {
+	query := `
+	UPDATE sessions
+	SET revoked_at = NOW()
+	WHERE id = $1 AND
+	revoked_at IS NULL AND
+	expires_at < NOW();
+	`
+	_, err := ar.db.Exec(ctx, query, sessionId)
 	if err != nil {
 		ar.logger.Error("Failed to revoke session", zap.Error(err))
 		return err

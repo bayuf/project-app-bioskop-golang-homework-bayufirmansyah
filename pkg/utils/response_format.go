@@ -37,12 +37,18 @@ func ResponseFailed(w http.ResponseWriter, code int, message string, errors any)
 }
 
 func ResponsePagination(w http.ResponseWriter, code int, message string, data any, pagination dto.Pagination) {
-	response := map[string]any{
-		"status":     true,
-		"message":    message,
-		"data":       data,
-		"pagination": pagination,
+	response := struct {
+		Status     bool           `json:"status"`
+		Message    string         `json:"message"`
+		Data       any            `json:"data,omitempty"`
+		Pagination dto.Pagination `json:"pagination"`
+	}{
+		Status:     true,
+		Message:    message,
+		Data:       data,
+		Pagination: pagination,
 	}
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
 	json.NewEncoder(w).Encode(response)

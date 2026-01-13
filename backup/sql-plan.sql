@@ -45,52 +45,105 @@ CREATE TABLE cinemas (
     name VARCHAR(100) NOT NULL,
     location TEXT NOT NULL,
 
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ,
+
+    CONSTRAINT uq_cinemas_name_location UNIQUE (name, location)
 );
+
 
 -- Studios
 CREATE TABLE studios (
     id SERIAL PRIMARY KEY,
     cinema_id INT NOT NULL REFERENCES cinemas(id),
     name VARCHAR(50) NOT NULL,
-    total_seats INT NOT NULL,
+    total_seats INT NOT NULL CHECK (total_seats > 0),
 
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     deleted_at TIMESTAMPTZ,
 
     CONSTRAINT uq_studio_name UNIQUE (cinema_id, name)
 );
 
+
 -- total seats
 CREATE TABLE seats (
     id SERIAL PRIMARY KEY,
     studio_id INT NOT NULL REFERENCES studios(id),
-    seat_code VARCHAR(5) NOT NULL,
+    seat_code VARCHAR(5) NOT NULL
+        CHECK (seat_code ~ '^[A-Z][0-9]{1,2}$'),
 
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     deleted_at TIMESTAMPTZ,
 
     CONSTRAINT uq_seat UNIQUE (studio_id, seat_code)
+);
+
+-- movies
+CREATE TABLE movies (
+    id SERIAL PRIMARY KEY,
+    title VARCHAR(150) NOT NULL,
+    duration_minutes INT NOT NULL CHECK (duration_minutes > 0),
+
+    synopsis TEXT,
+    language VARCHAR(30),
+    age_rating VARCHAR(10), -- SU, 13+, 17+
+
+    poster_url TEXT,
+    trailer_url TEXT,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    deleted_at TIMESTAMPTZ
+);
+
+CREATE TABLE genres (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) NOT NULL UNIQUE
+);
+
+CREATE TABLE movie_genres (
+    movie_id INT NOT NULL REFERENCES movies(id) ON DELETE CASCADE,
+    genre_id INT NOT NULL REFERENCES genres(id) ON DELETE CASCADE,
+
+    PRIMARY KEY (movie_id, genre_id)
+);
+
+CREATE TABLE people (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    avatar_url TEXT,
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE movie_people (
+    movie_id INT NOT NULL REFERENCES movies(id) ON DELETE CASCADE,
+    person_id INT NOT NULL REFERENCES people(id) ON DELETE CASCADE,
+    role VARCHAR(20) NOT NULL CHECK (role IN ('director', 'actor')),
+
+    PRIMARY KEY (movie_id, person_id, role)
 );
 
 -- movie schedules
 CREATE TABLE movie_schedules (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     studio_id INT NOT NULL REFERENCES studios(id),
+    movie_id INT NOT NULL REFERENCES movies(id),
     show_date DATE NOT NULL,
     show_time TIME NOT NULL,
-    price NUMERIC(10,2) NOT NULL,
+    price NUMERIC(10,2) NOT NULL CHECK (price > 0),
 
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     deleted_at TIMESTAMPTZ,
 
     CONSTRAINT uq_schedule UNIQUE (studio_id, show_date, show_time)
 );
+
 
 -- bookings
 CREATE TABLE bookings (

@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/dto"
+	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/middleware"
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/usecase"
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/pkg/utils"
 	"go.uber.org/zap"
@@ -53,6 +54,7 @@ func (a *AuthAdaptor) RegisterUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *AuthAdaptor) LoginUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	newUser := dto.UserLogin{}
 	if r.Method != "POST" {
 		utils.ResponseFailed(w, http.StatusMethodNotAllowed, "method not allowed", nil)
@@ -71,7 +73,7 @@ func (a *AuthAdaptor) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := a.uc.LoginUser(r.Context(), newUser); err != nil {
+	if err := a.uc.LoginUser(ctx, newUser); err != nil {
 		a.logger.Error("failed to create new user", zap.Error(err))
 		utils.ResponseFailed(w, http.StatusInternalServerError, "failed to create new user", err)
 		return
@@ -81,8 +83,23 @@ func (a *AuthAdaptor) LoginUser(w http.ResponseWriter, r *http.Request) {
 }
 
 func (a *AuthAdaptor) LogoutUser(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
 	if r.Method != "POST" {
 		utils.ResponseFailed(w, http.StatusMethodNotAllowed, "method not allowed", nil)
+		return
+	}
+
+	authData, ok := middleware.GetAuthUser(r)
+	if !ok {
+		utils.ResponseFailed(w, http.StatusUnauthorized, "user not authenticated", nil)
+		return
+	}
+
+	sessionId := authData.ID
+
+	if err := a.uc.LogoutUser(ctx, sessionId); err != nil {
+		a.logger.Error("failed to logout user", zap.Error(err))
+		utils.ResponseFailed(w, http.StatusInternalServerError, "failed to logout user", err)
 		return
 	}
 

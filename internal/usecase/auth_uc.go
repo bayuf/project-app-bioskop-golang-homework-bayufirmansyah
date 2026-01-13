@@ -140,3 +140,7 @@ func (uc *AuthUsecase) VerifyCode(ctx context.Context, userId uuid.UUID) (*dto.S
 		CreatedAt: session.CreatedAt,
 	}, nil
 }
+
+func (uc *AuthUsecase) LogoutUser(ctx context.Context, sessionId uuid.UUID) error {
+	return uc.repo.RevokeSessionBySessionId(ctx, sessionId)
+}

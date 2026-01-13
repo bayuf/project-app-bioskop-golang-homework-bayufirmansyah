@@ -9,11 +9,13 @@ import (
 type UseCase struct {
 	*AuthUsecase
 	*EmailUsecase
+	*CinemaUseCase
 }
 
 func NewUsecase(repo *repository.Repository, log *zap.Logger, config *utils.Configuration, emailJob chan<- utils.EmailJob) *UseCase {
 	return &UseCase{
-		AuthUsecase:  NewAuthUsecase(repo.AuthRepository, log, config, emailJob),
-		EmailUsecase: NewEmailUsecase(log, config),
+		AuthUsecase:   NewAuthUsecase(repo.AuthRepository, log, config, emailJob),
+		EmailUsecase:  NewEmailUsecase(log, config),
+		CinemaUseCase: NewCinemaUseCase(repo.CinemaRepository, log),
 	}
 }
