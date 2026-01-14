@@ -34,8 +34,8 @@ func (uc *MovieUseCase) GetMovieDetail(ctx context.Context, movieId int) (*dto.M
 	var (
 		rating    *entity.MovieDetail
 		genres    *[]string
-		directors *[]string
-		actors    *[]string
+		directors *[]dto.Director
+		actors    *[]dto.Actor
 	)
 
 	//
@@ -68,6 +68,7 @@ func (uc *MovieUseCase) GetMovieDetail(ctx context.Context, movieId int) (*dto.M
 		if err != nil {
 			return err
 		}
+
 		return nil
 	})
 

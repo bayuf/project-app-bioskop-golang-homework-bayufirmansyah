@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/data/entity"
+	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/dto"
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/pkg/database"
 	"go.uber.org/zap"
 )
@@ -88,9 +89,9 @@ func (mr *MovieRepository) GetMovieGenres(ctx context.Context, movieId int) (*[]
 	return &genres, nil
 }
 
-func (mr *MovieRepository) GetMovieDirector(ctx context.Context, movieId int) (*[]string, error) {
+func (mr *MovieRepository) GetMovieDirector(ctx context.Context, movieId int) (*[]dto.Director, error) {
 	query := `
-	SELECT p.name
+	SELECT p.name, p.avatar_url
 	FROM people p
 		JOIN movie_people mp ON mp.person_id = p.id
 	WHERE mp.movie_id = $1
@@ -104,23 +105,22 @@ func (mr *MovieRepository) GetMovieDirector(ctx context.Context, movieId int) (*
 	}
 
 	defer rows.Close()
-
-	var people []string
+	var directors []dto.Director
 	for rows.Next() {
-		var person string
-		if err := rows.Scan(&person); err != nil {
-			mr.logger.Error("cant scan movie people", zap.Error(err))
+		var director dto.Director
+		if err := rows.Scan(&director.Name, &director.AvatarUrl); err != nil {
+			mr.logger.Error("cant scan movie director", zap.Error(err))
 			return nil, err
 		}
-		people = append(people, person)
+		directors = append(directors, director)
 	}
 
-	return &people, nil
+	return &directors, nil
 }
 
-func (mr *MovieRepository) GetMovieActors(ctx context.Context, movieId int) (*[]string, error) {
+func (mr *MovieRepository) GetMovieActors(ctx context.Context, movieId int) (*[]dto.Actor, error) {
 	query := `
-	SELECT p.name
+	SELECT p.name, p.avatar_url
 	FROM people p
 		JOIN movie_people mp ON mp.person_id = p.id
 	WHERE mp.movie_id = $1
@@ -135,17 +135,17 @@ func (mr *MovieRepository) GetMovieActors(ctx context.Context, movieId int) (*[]
 
 	defer rows.Close()
 
-	var people []string
+	var actors []dto.Actor
 	for rows.Next() {
-		var person string
-		if err := rows.Scan(&person); err != nil {
+		var actor dto.Actor
+		if err := rows.Scan(&actor.Name, &actor.AvatarUrl); err != nil {
 			mr.logger.Error("cant scan movie people", zap.Error(err))
 			return nil, err
 		}
-		people = append(people, person)
+		actors = append(actors, actor)
 	}
 
-	return &people, nil
+	return &actors, nil
 }
 
 // List Movie
