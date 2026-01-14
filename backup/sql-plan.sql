@@ -94,6 +94,8 @@ CREATE TABLE movies (
 
     poster_url TEXT,
     trailer_url TEXT,
+    release_date DATE NOT NULL,
+    end_date DATE,
 
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -142,6 +144,18 @@ CREATE TABLE movie_schedules (
     deleted_at TIMESTAMPTZ,
 
     CONSTRAINT uq_schedule UNIQUE (studio_id, show_date, show_time)
+);
+
+CREATE TABLE movie_reviews (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    movie_id INT NOT NULL REFERENCES movies(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+
+    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+
+    CONSTRAINT uq_movie_user_rating UNIQUE (movie_id, user_id)
 );
 
 

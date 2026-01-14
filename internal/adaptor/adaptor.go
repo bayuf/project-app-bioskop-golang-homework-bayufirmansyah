@@ -9,11 +9,13 @@ import (
 type Adaptor struct {
 	*AuthAdaptor
 	*CinemaAdaptor
+	*MovieAdapter
 }
 
 func NewAdaptor(useCase *usecase.UseCase, log *zap.Logger, config *utils.Configuration) *Adaptor {
 	return &Adaptor{
 		AuthAdaptor:   NewAuthAdaptor(useCase.AuthUsecase, log, config),
 		CinemaAdaptor: NewCinemaAdaptor(useCase.CinemaUseCase, log, config),
+		MovieAdapter:  NewMovieAdapter(useCase.MovieUseCase, log, config),
 	}
 }

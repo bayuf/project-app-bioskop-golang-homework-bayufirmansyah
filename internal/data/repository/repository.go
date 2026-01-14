@@ -8,11 +8,13 @@ import (
 type Repository struct {
 	*AuthRepository
 	*CinemaRepository
+	*MovieRepository
 }
 
 func NewRepository(db database.DBExecutor, log *zap.Logger) *Repository {
 	return &Repository{
 		AuthRepository:   NewAuthRepository(db, log),
 		CinemaRepository: NewCinemaRepository(db, log),
+		MovieRepository:  NewMovieRepository(db, log),
 	}
 }

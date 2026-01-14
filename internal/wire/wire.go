@@ -67,4 +67,9 @@ func WireAPI(r *chi.Mux, repo *repository.Repository, logger *zap.Logger, config
 		r.Get("/", adaptor.CinemaAdaptor.GetListCinemas)
 	})
 
+	r.Route("/movies", func(r chi.Router) {
+		r.Get("/", adaptor.MovieAdapter.GetMovies)
+		r.Get("/{movie_id}", adaptor.MovieAdapter.GetMovieDetail)
+	})
+
 }
