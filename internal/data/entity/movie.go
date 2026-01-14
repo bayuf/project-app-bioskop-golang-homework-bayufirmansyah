@@ -10,6 +10,7 @@ type MovieDetail struct {
 	Duration    int
 	ReviewStar  float64
 	ReviewCount int
+	ReleaseDate time.Time
 	Genres      []string
 	Rating      string
 	Synopsis    string

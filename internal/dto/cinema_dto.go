@@ -15,3 +15,9 @@ type CinemaListResponse struct {
 	Name     string `json:"name"`
 	Location string `json:"location"`
 }
+
+type SeatStatus struct {
+	SeatID   int    `json:"seat_id"`
+	SeatCode string `json:"seat_code"`
+	Status   string `json:"status"`
+}

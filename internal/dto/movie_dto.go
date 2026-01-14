@@ -1,15 +1,18 @@
 package dto
 
+import "time"
+
 type MovieDetail struct {
 	ID          int        `json:"id"`
 	Title       string     `json:"title"`
 	Duration    int        `json:"duration"`
 	ReviewStar  float64    `json:"rating"`
 	ReviewCount int        `json:"review_count"`
+	ReleaseDate time.Time  `json:"release_date"`
 	Genres      []string   `json:"genre"`
 	Synopsis    string     `json:"story"`
 	Language    string     `json:"language"`
-	AgeRating   string     `json:"age_rating"`
+	AgeRating   string     `json:"censorship"`
 	PosterURL   string     `json:"poster_url"`
 	TrailerURL  string     `json:"trailer_url"`
 	Directors   []Director `json:"directors"`

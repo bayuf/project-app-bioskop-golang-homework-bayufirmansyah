@@ -25,14 +25,14 @@ func NewMovieRepository(db database.DBExecutor, logger *zap.Logger) *MovieReposi
 func (mr *MovieRepository) GetMovie(ctx context.Context, id int) (*entity.MovieDetail, error) {
 	query := `
 	SELECT
-		id, title, duration_minutes, synopsis, language, age_rating, poster_url, trailer_url
+		id, title, duration_minutes, synopsis, language, age_rating, poster_url, trailer_url, release_date
 	FROM movies
 	WHERE id = $1 AND deleted_at IS NULL;`
 
 	var movie = entity.MovieDetail{}
 	if err := mr.db.QueryRow(ctx, query, id).Scan(
 		&movie.ID, &movie.Title, &movie.Duration, &movie.Synopsis, &movie.Language, &movie.AgeRating, &movie.PosterURL,
-		&movie.TrailerURL,
+		&movie.TrailerURL, &movie.ReleaseDate,
 	); err != nil {
 		mr.logger.Error("cant scan movie detail", zap.Error(err))
 		return nil, err

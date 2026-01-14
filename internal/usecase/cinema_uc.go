@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"context"
+	"time"
 
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/data/repository"
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/dto"
@@ -59,4 +60,27 @@ func (uc *CinemaUseCase) GetCinemaById(ctx context.Context, id int) (*dto.Cinema
 		CreatedAt: cinema.CreatedAt,
 		UpdatedAt: cinema.UpdatedAt,
 	}, nil
+}
+
+func (uc *CinemaUseCase) GetSeatStatus(ctx context.Context, cinemaId int, date, time time.Time) (*[]dto.SeatStatus, error) {
+	studioSchedule, err := uc.repo.GetStudioIdbySchedule(ctx, cinemaId, date, time)
+	if err != nil {
+		return nil, err
+	}
+
+	seatStatus, err := uc.repo.GetSeatStatus(ctx, studioSchedule.ID, studioSchedule.StudioID)
+	if err != nil {
+		return nil, err
+	}
+
+	var seatStatusResponses []dto.SeatStatus
+	for _, status := range *seatStatus {
+		seatStatusResponses = append(seatStatusResponses, dto.SeatStatus{
+			SeatID:   status.SeatID,
+			SeatCode: status.SeatCode,
+			Status:   status.Status,
+		})
+	}
+
+	return &seatStatusResponses, nil
 }

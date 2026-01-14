@@ -166,7 +166,7 @@ CREATE TABLE bookings (
     schedule_id UUID NOT NULL REFERENCES movie_schedules(id),
 
     status VARCHAR(20) NOT NULL
-        CHECK (status IN ('PENDING', 'PAID', 'CANCELLED')),
+        CHECK (status IN ('RESERVED', 'PAID', 'CANCELLED')),
 
     total_price NUMERIC(10,2) NOT NULL,
 
@@ -177,42 +177,44 @@ CREATE TABLE bookings (
 -- booking seats
 CREATE TABLE booking_seats (
     booking_id UUID NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
+    schedule_id UUID NOT NULL REFERENCES movie_schedules(id),
     seat_id INT NOT NULL REFERENCES seats(id),
+
+    booking_status VARCHAR(20) NOT NULL
+        CHECK (booking_status IN ('RESERVED', 'PAID')),
 
     PRIMARY KEY (booking_id, seat_id)
 );
 
-CREATE UNIQUE INDEX uq_seat_schedule_booking
-ON booking_seats (seat_id)
-WHERE booking_id IN (
-    SELECT id FROM bookings
-    WHERE status IN ('PENDING', 'PAID')
-);
+
+CREATE UNIQUE INDEX uq_seat_schedule_active
+ON booking_seats (schedule_id, seat_id)
+WHERE booking_status IN ('RESERVED', 'PAID');
+
 
 -- payment method
 CREATE TABLE payment_methods (
     id SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
+    name VARCHAR(50) NOT NULL UNIQUE,
 
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
-    deleted_at TIMESTAMPTZ,
-
-    CONSTRAINT uq_payment_method UNIQUE (name)
+    deleted_at TIMESTAMPTZ
 );
+
 
 -- payment
 CREATE TABLE payments (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     booking_id UUID NOT NULL REFERENCES bookings(id),
-
     payment_method_id INT NOT NULL REFERENCES payment_methods(id),
-    amount NUMERIC(10,2) NOT NULL,
 
+    amount NUMERIC(10,2) NOT NULL,
     status VARCHAR(20) NOT NULL
         CHECK (status IN ('SUCCESS', 'FAILED')),
 
     paid_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
 
-    created_at TIMESTAMPTZ DEFAULT NOW()
+    CONSTRAINT uq_payment_booking UNIQUE (booking_id)
 );

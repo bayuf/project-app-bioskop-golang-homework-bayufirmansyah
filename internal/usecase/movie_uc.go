@@ -38,7 +38,7 @@ func (uc *MovieUseCase) GetMovieDetail(ctx context.Context, movieId int) (*dto.M
 		actors    *[]dto.Actor
 	)
 
-	//
+	//wait for all goroutines to finish
 	g, ctx := errgroup.WithContext(ctx)
 
 	// get rating
@@ -68,7 +68,6 @@ func (uc *MovieUseCase) GetMovieDetail(ctx context.Context, movieId int) (*dto.M
 		if err != nil {
 			return err
 		}
-
 		return nil
 	})
 
@@ -92,6 +91,7 @@ func (uc *MovieUseCase) GetMovieDetail(ctx context.Context, movieId int) (*dto.M
 		Duration:    movie.Duration,
 		Synopsis:    movie.Synopsis,
 		Language:    movie.Language,
+		ReleaseDate: movie.ReleaseDate,
 		AgeRating:   movie.AgeRating,
 		PosterURL:   movie.PosterURL,
 		TrailerURL:  movie.TrailerURL,
