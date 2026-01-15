@@ -49,7 +49,7 @@ func (uc *BookingUseCase) BookingSeat(ctx context.Context, userID uuid.UUID, req
 		return err
 	}
 
-	if err := repoTx.BookingSeat(ctx, newBookingID, movieInfo.ID, req.SeatID, "RESERVED"); err != nil {
+	if err := repoTx.BookingSeat(ctx, newBookingID, movieInfo.ID, req.SeatID); err != nil {
 		return err
 	}
 

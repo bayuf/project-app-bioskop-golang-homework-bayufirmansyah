@@ -25,9 +25,9 @@ func NewAuthRepository(db database.DBExecutor, logger *zap.Logger) *AuthReposito
 func (ar *AuthRepository) RegisterUser(ctx context.Context, newUser entity.User) error {
 	ar.logger.Info("Registering user", zap.String("email", newUser.Email))
 
-	query := `INSERT INTO users (email, name, password_hash) VALUES ($1, $2, $3)`
+	query := `INSERT INTO users (id, email, name, password_hash) VALUES ($1, $2, $3, $4)`
 
-	commandTag, err := ar.db.Exec(ctx, query, newUser.Email, newUser.Name, newUser.Password)
+	commandTag, err := ar.db.Exec(ctx, query, newUser.Model.ID, newUser.Email, newUser.Name, newUser.Password)
 	if err != nil {
 		if commandTag.RowsAffected() == 0 {
 			ar.logger.Error("Failed to register user", zap.Error(err))
@@ -41,15 +41,33 @@ func (ar *AuthRepository) RegisterUser(ctx context.Context, newUser entity.User)
 	return nil
 }
 
+func (ar *AuthRepository) UpdateUserStatus(ctx context.Context, userID uuid.UUID) error {
+	query := `
+	UPDATE users
+		SET is_active = TRUE
+	WHERE id = $1
+		AND is_active = FALSE
+		AND deleted_at IS NULL;`
+
+	if _, err := ar.db.Exec(ctx, query, userID); err != nil {
+		ar.logger.Error("Failed to update user status", zap.Error(err))
+		return err
+	}
+
+	ar.logger.Info("User status updated successfully", zap.String("user_id", userID.String()))
+	return nil
+}
+
 func (ar *AuthRepository) FindUserByEmail(ctx context.Context, email string) (*entity.User, error) {
 	query := `
 	SELECT
 		id, email, name, password_hash, created_at, updated_at
 	FROM users
-	WHERE deleted_at IS NULL;
+	WHERE email = $1
+		AND deleted_at IS NULL;
 	`
 	user := entity.User{}
-	if err := ar.db.QueryRow(ctx, query).
+	if err := ar.db.QueryRow(ctx, query, email).
 		Scan(&user.Model.ID, &user.Email, &user.Model.Name, &user.Password, &user.Created_At, &user.Updated_At); err != nil {
 		ar.logger.Error("Failed to find user by email", zap.Error(err))
 		return nil, err
@@ -186,7 +204,7 @@ func (ar *AuthRepository) GetVerifyCodeByUserId(ctx context.Context, userId uuid
 	return &code, nil
 }
 
-func (ar *AuthRepository) UpdateVerificationCodeStatus(ctx context.Context, code entity.VerificationCode) error {
+func (ar *AuthRepository) UpdateVerificationCodeStatus(ctx context.Context, ID uuid.UUID) error {
 	query := `
 	UPDATE verification_codes
 	SET used_at = NOW()
@@ -195,7 +213,7 @@ func (ar *AuthRepository) UpdateVerificationCodeStatus(ctx context.Context, code
 	expires_at < NOW();
 	`
 
-	commandTag, err := ar.db.Exec(ctx, query, code.ID)
+	commandTag, err := ar.db.Exec(ctx, query, ID)
 	if err != nil {
 		if commandTag.RowsAffected() == 0 {
 			ar.logger.Error("Failed to update verification code status", zap.Error(err))

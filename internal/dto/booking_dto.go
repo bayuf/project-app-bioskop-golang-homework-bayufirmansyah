@@ -7,12 +7,18 @@ import (
 	"github.com/shopspring/decimal"
 )
 
+type BookingReqBody struct {
+	CinemaID int    `json:"cinema_id" validate:"required"`
+	SeatID   int    `json:"seat_id" validate:"required"`
+	Date     string `json:"date" validate:"required"`
+	Time     string `json:"time" validate:"required"`
+}
+
 type BookingReq struct {
-	CinemaID      int       `json:"cinema_id" validate:"required"`
-	SeatID        int       `json:"seat_id" validate:"required"`
-	Date          time.Time `json:"date" validate:"required"`
-	Time          time.Time `json:"time" validate:"required"`
-	PaymentMethod int       `json:"payment_method" validate:"required"`
+	CinemaID int       `json:"cinema_id" validate:"required"`
+	SeatID   int       `json:"seat_id" validate:"required"`
+	Date     time.Time `json:"date" validate:"required"`
+	Time     time.Time `json:"time" validate:"required"`
 }
 
 type Booking struct {

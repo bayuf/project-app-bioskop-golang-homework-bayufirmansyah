@@ -107,14 +107,16 @@ func (cr *CinemaRepository) GetSeatStatus(ctx context.Context, scheduleId uuid.U
 	    s.id,
 	    s.seat_code,
 	    CASE
-	        WHEN bs.seat_id IS NULL THEN 'AVAILABLE'
+	        WHEN bs.seat_id IS NULL
+				AND b.expired_at IS NULL
+				OR b.expired_at < NOW()
+				THEN 'AVAILABLE'
 	        ELSE 'BOOKED'
 	    END AS status
 	FROM seats s
-		LEFT JOIN booking_seats bs
-    	ON bs.seat_id = s.id
+		LEFT JOIN booking_seats bs ON bs.seat_id = s.id
      	AND bs.schedule_id = $1
-    	AND bs.booking_status IN ('RESERVED', 'PAID')
+      	LEFT JOIN bookings b ON b.id = bs.booking_id
     WHERE s.studio_id = $2
     	AND s.deleted_at IS NULL
      ORDER BY LENGTH(seat_code), seat_code;`

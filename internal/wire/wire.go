@@ -56,6 +56,12 @@ func WireAPI(r *chi.Mux, repo *repository.Repository, logger *zap.Logger, config
 		w.WriteHeader(http.StatusOK)
 	})
 
+	r.Mount("/api", Api(adaptor, uc, mw))
+}
+
+func Api(adaptor *adaptor.Adaptor, usecase *usecase.UseCase, mw *mwCustom.Middleware) *chi.Mux {
+	r := chi.NewRouter()
+
 	// login register
 	r.Post("/user/register", adaptor.AuthAdaptor.RegisterUser)
 	r.Route("/auth", func(r chi.Router) {
@@ -82,6 +88,11 @@ func WireAPI(r *chi.Mux, repo *repository.Repository, logger *zap.Logger, config
 			r.Get("/", adaptor.MovieAdapter.GetMovies)
 			r.Get("/{movie_id}", adaptor.MovieAdapter.GetMovieDetail)
 		})
+
+		r.Route("/bookings", func(r chi.Router) {
+			r.Post("/", adaptor.BookingAdaptor.BookingSeat)
+		})
 	})
 
+	return r
 }

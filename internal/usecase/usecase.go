@@ -17,7 +17,7 @@ type UseCase struct {
 
 func NewUsecase(repo *repository.Repository, log *zap.Logger, config *utils.Configuration, tx database.TxManager, emailJob chan<- utils.EmailJob) *UseCase {
 	return &UseCase{
-		AuthUsecase:    NewAuthUsecase(repo.AuthRepository, log, config, emailJob),
+		AuthUsecase:    NewAuthUsecase(repo.AuthRepository, log, config, tx, emailJob),
 		EmailUsecase:   NewEmailUsecase(log, config),
 		CinemaUseCase:  NewCinemaUseCase(repo.CinemaRepository, log),
 		MovieUseCase:   NewMovieUseCase(repo.MovieRepository, log),

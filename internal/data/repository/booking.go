@@ -67,8 +67,8 @@ func (br *BookingRepository) SeatValidation(ctx context.Context, seatId, studioI
 
 func (br *BookingRepository) CreateBooking(ctx context.Context, bookingID, userID, scheduleID uuid.UUID, totalPrice decimal.Decimal) error {
 	query := `
-	INSERT INTO bookings (id, user_id, schedule_id, total_price, status)
-	VALUES ($1, $2, $3, $4, 'RESERVED');`
+	INSERT INTO bookings (id, user_id, schedule_id, total_price, status, expired_at)
+	VALUES ($1, $2, $3, $4, 'RESERVED', NOW() + INTERVAL '10 minute');`
 
 	if _, err := br.db.Exec(ctx, query, bookingID, userID, scheduleID, totalPrice); err != nil {
 		br.logger.Error("failed to reserve booking", zap.Error(err))
@@ -77,12 +77,12 @@ func (br *BookingRepository) CreateBooking(ctx context.Context, bookingID, userI
 	return nil
 }
 
-func (br *BookingRepository) BookingSeat(ctx context.Context, bookingID, scheduleID uuid.UUID, seatID int, bookingStatus string) error {
+func (br *BookingRepository) BookingSeat(ctx context.Context, bookingID, scheduleID uuid.UUID, seatID int) error {
 	query := `
-	INSERT INTO booking_seats (booking_id, schedule_id, seat_id, status)
-	VALUES ($1, $2, $3, $4);`
+	INSERT INTO booking_seats (booking_id, schedule_id, seat_id)
+	VALUES ($1, $2, $3);`
 
-	if _, err := br.db.Exec(ctx, query, bookingID, scheduleID, seatID, bookingStatus); err != nil {
+	if _, err := br.db.Exec(ctx, query, bookingID, scheduleID, seatID); err != nil {
 		br.logger.Error("failed to book seat", zap.Error(err))
 		return err
 	}

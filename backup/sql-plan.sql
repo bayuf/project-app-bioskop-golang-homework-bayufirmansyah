@@ -172,6 +172,7 @@ CREATE TABLE bookings (
 
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
+    expired_at TIMESTAMP NOT NULL
 );
 
 -- booking seats
@@ -179,9 +180,6 @@ CREATE TABLE booking_seats (
     booking_id UUID NOT NULL REFERENCES bookings(id) ON DELETE CASCADE,
     schedule_id UUID NOT NULL REFERENCES movie_schedules(id),
     seat_id INT NOT NULL REFERENCES seats(id),
-
-    booking_status VARCHAR(20) NOT NULL
-        CHECK (booking_status IN ('RESERVED', 'PAID')),
 
     PRIMARY KEY (booking_id, seat_id)
 );
