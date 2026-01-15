@@ -79,7 +79,7 @@ func (a *AuthAdaptor) LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.ResponseSuccess(w, http.StatusCreated, "success", nil)
+	utils.ResponseSuccess(w, http.StatusOK, "success", nil)
 }
 
 func (a *AuthAdaptor) LogoutUser(w http.ResponseWriter, r *http.Request) {
@@ -103,5 +103,35 @@ func (a *AuthAdaptor) LogoutUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	utils.ResponseSuccess(w, http.StatusCreated, "success", nil)
+	utils.ResponseSuccess(w, http.StatusOK, "success", nil)
+}
+
+func (ad *AuthAdaptor) VerifyCodeOTP(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	userReq := dto.VerifyCode{}
+	if r.Method != "POST" {
+		utils.ResponseFailed(w, http.StatusMethodNotAllowed, "method not allowed", nil)
+		return
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&userReq); err != nil {
+		utils.ResponseFailed(w, http.StatusBadRequest, "invalid input format", err.Error())
+		return
+	}
+
+	// validate
+	messageInvalid, err := utils.ValidateInput(&userReq)
+	if err != nil {
+		utils.ResponseFailed(w, http.StatusBadRequest, "invalid input data", messageInvalid)
+		return
+	}
+
+	data, err := ad.uc.VerifyCode(ctx, userReq)
+	if err != nil {
+		ad.logger.Error("failed to verify user", zap.Error(err))
+		utils.ResponseFailed(w, http.StatusInternalServerError, "failed to verify user", err.Error())
+		return
+	}
+
+	utils.ResponseSuccess(w, http.StatusOK, "success", data)
 }

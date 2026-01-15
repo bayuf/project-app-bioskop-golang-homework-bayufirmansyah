@@ -32,7 +32,7 @@ func main() {
 
 	// init layer
 	repo := repository.NewRepository(dbPool, logger)
-	app := wire.Wiring(repo, logger, config)
+	app := wire.Wiring(repo, logger, config, dbPool)
 
 	// start app
 	fmt.Println(config.AppName, "is starting...")

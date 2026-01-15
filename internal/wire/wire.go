@@ -1,12 +1,14 @@
 package wire
 
 import (
+	"net/http"
 	"sync"
 
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/adaptor"
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/data/repository"
 	mwCustom "github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/middleware"
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/usecase"
+	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/pkg/database"
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/pkg/utils"
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
@@ -19,7 +21,7 @@ type App struct {
 	WG    *sync.WaitGroup
 }
 
-func Wiring(repo *repository.Repository, logger *zap.Logger, config *utils.Configuration) *App {
+func Wiring(repo *repository.Repository, logger *zap.Logger, config *utils.Configuration, tx database.TxManager) *App {
 	// init
 	r := chi.NewRouter()
 
@@ -34,7 +36,7 @@ func Wiring(repo *repository.Repository, logger *zap.Logger, config *utils.Confi
 	// chi middleware
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-	WireAPI(r, repo, logger, config, emailJobs)
+	WireAPI(r, repo, logger, config, tx, emailJobs)
 
 	return &App{
 		Route: r,
@@ -43,18 +45,22 @@ func Wiring(repo *repository.Repository, logger *zap.Logger, config *utils.Confi
 	}
 }
 
-func WireAPI(r *chi.Mux, repo *repository.Repository, logger *zap.Logger, config *utils.Configuration, emailJob chan<- utils.EmailJob) {
+func WireAPI(r *chi.Mux, repo *repository.Repository, logger *zap.Logger, config *utils.Configuration, tx database.TxManager, emailJob chan<- utils.EmailJob) {
 	// init layer
-	uc := usecase.NewUsecase(repo, logger, config, emailJob)
+	uc := usecase.NewUsecase(repo, logger, config, tx, emailJob)
 	adaptor := adaptor.NewAdaptor(uc, logger, config)
 	mw := mwCustom.NewCustomMiddleware(repo, logger)
 
-	// routers
-	r.Post("/register", adaptor.AuthAdaptor.RegisterUser)
+	// PING
+	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
 
-	// auth
+	// login register
+	r.Post("/user/register", adaptor.AuthAdaptor.RegisterUser)
 	r.Route("/auth", func(r chi.Router) {
 		r.Post("/login", adaptor.AuthAdaptor.LoginUser)
+		r.Post("/verify", adaptor.AuthAdaptor.VerifyCodeOTP)
 
 		r.Group(func(r chi.Router) {
 			r.Use(mw.AuthMiddleware.SessionAuthMiddleware())
@@ -62,15 +68,20 @@ func WireAPI(r *chi.Mux, repo *repository.Repository, logger *zap.Logger, config
 		})
 	})
 
-	r.Route("/cinemas", func(r chi.Router) {
-		r.Get("/{cinema_id}", adaptor.CinemaAdaptor.GetCinema)
-		r.Get("/{cinema_id}/seats", adaptor.CinemaAdaptor.GetSeatStatus)
-		r.Get("/", adaptor.CinemaAdaptor.GetListCinemas)
-	})
+	// ROUTERS PROTECTED
+	r.Group(func(r chi.Router) {
+		r.Use(mw.AuthMiddleware.SessionAuthMiddleware())
 
-	r.Route("/movies", func(r chi.Router) {
-		r.Get("/", adaptor.MovieAdapter.GetMovies)
-		r.Get("/{movie_id}", adaptor.MovieAdapter.GetMovieDetail)
+		r.Route("/cinemas", func(r chi.Router) {
+			r.Get("/{cinema_id}", adaptor.CinemaAdaptor.GetCinema)
+			r.Get("/{cinema_id}/seats", adaptor.CinemaAdaptor.GetSeatStatus)
+			r.Get("/", adaptor.CinemaAdaptor.GetListCinemas)
+		})
+
+		r.Route("/movies", func(r chi.Router) {
+			r.Get("/", adaptor.MovieAdapter.GetMovies)
+			r.Get("/{movie_id}", adaptor.MovieAdapter.GetMovieDetail)
+		})
 	})
 
 }

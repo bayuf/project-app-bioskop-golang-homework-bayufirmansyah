@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/shopspring/decimal"
 )
 
 type Cinema struct {
@@ -22,6 +23,7 @@ type CinemaSchedule struct {
 	StudioID  int
 	ShowDate  time.Time
 	ShowTime  time.Time
+	Price     decimal.Decimal
 	CreatedAt time.Time
 	UpdatedAt time.Time
 	DeletedAt time.Time

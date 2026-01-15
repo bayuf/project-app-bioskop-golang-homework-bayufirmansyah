@@ -60,7 +60,7 @@ func (ar *AuthRepository) FindUserByEmail(ctx context.Context, email string) (*e
 
 func (ar *AuthRepository) CreateSession(ctx context.Context, newSession entity.Session) error {
 	query := `
-	INSERT INTO sessions (token, user_id, expires_at)
+	INSERT INTO sessions (token, user_id, expired_at)
 	VALUES ($1, $2, $3)
 	`
 	commandTag, err := ar.db.Exec(ctx, query, newSession.ID, newSession.UserID, newSession.ExpiresAt)
@@ -80,9 +80,10 @@ func (ar *AuthRepository) CreateSession(ctx context.Context, newSession entity.S
 func (ar *AuthRepository) GetSessionIdByUserId(ctx context.Context, userId uuid.UUID) (*entity.Session, error) {
 	query := `
 	SELECT
-		id, user_id, expires_at
+		token, user_id, expired_at
 	FROM sessions
-	WHERE user_id = $1 AND deleted_at IS NULL;
+	WHERE user_id = $1
+		AND deleted_at IS NULL;
 	`
 	session := entity.Session{}
 	if err := ar.db.QueryRow(ctx, query, userId).
@@ -95,11 +96,11 @@ func (ar *AuthRepository) GetSessionIdByUserId(ctx context.Context, userId uuid.
 }
 
 func (ar *AuthRepository) ValidateSession(ctx context.Context, sessionId uuid.UUID) (*entity.Session, error) {
-	query := `SELECT s.id, s.user_id
+	query := `SELECT s.token, s.user_id
 			FROM sessions s
-			WHERE s.id = $1
+			WHERE s.token = $1
 			  AND s.revoked_at IS NULL
-			  AND s.expires_at > NOW();`
+			  AND s.expired_at > NOW();`
 	session := entity.Session{}
 	if err := ar.db.QueryRow(ctx, query, sessionId).Scan(
 		&session.ID,
@@ -117,7 +118,7 @@ func (ar *AuthRepository) RevokeSessionByUserId(ctx context.Context, userId uuid
 	SET revoked_at = NOW()
 	WHERE user_id = $1 AND
 	revoked_at IS NULL AND
-	expires_at < NOW();
+	expired_at < NOW();
 	`
 	_, err := ar.db.Exec(ctx, query, userId)
 	if err != nil {
@@ -135,7 +136,7 @@ func (ar *AuthRepository) RevokeSessionBySessionId(ctx context.Context, sessionI
 	SET revoked_at = NOW()
 	WHERE id = $1 AND
 	revoked_at IS NULL AND
-	expires_at < NOW();
+	expired_at < NOW();
 	`
 	_, err := ar.db.Exec(ctx, query, sessionId)
 	if err != nil {
@@ -173,7 +174,7 @@ func (ar *AuthRepository) GetVerifyCodeByUserId(ctx context.Context, userId uuid
 	FROM verification_codes
 	WHERE user_id = $1 AND
 	used_at IS NULL AND
-	expires_at > NOW();
+	expired_at > NOW();
 	`
 	code := entity.VerificationCode{}
 	if err := ar.db.QueryRow(ctx, query, userId).

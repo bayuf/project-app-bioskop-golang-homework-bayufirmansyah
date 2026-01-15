@@ -123,6 +123,7 @@ func (ad *CinemaAdaptor) GetSeatStatus(w http.ResponseWriter, r *http.Request) {
 		return nil
 	})
 
+	// wait for parsing result
 	if err := g.Wait(); err != nil {
 		utils.ResponseFailed(w, http.StatusBadRequest, "failed parse", err.Error())
 		return

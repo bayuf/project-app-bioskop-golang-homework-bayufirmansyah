@@ -71,17 +71,17 @@ func (uc *AuthUsecase) LoginUser(ctx context.Context, userData dto.UserLogin) er
 	}
 
 	// hash codeOTP
-	hashedCode, err := utils.HashString(code)
-	if err != nil {
-		uc.logger.Error("failed to hash verify code", zap.Error(err))
-		return err
-	}
+	// hashedCode, err := utils.HashString(code)
+	// if err != nil {
+	// 	uc.logger.Error("failed to hash verify code", zap.Error(err))
+	// 	return err
+	// }
 
 	// add verification code to db
 	if err := uc.repo.AddVerificationCode(ctx, entity.VerificationCode{
 		ID:        uuid.New(),
 		UserID:    user.Model.ID,
-		Code:      hashedCode,
+		Code:      code,
 		Purpose:   "login",
 		ExpiredAt: time.Now().Add(5 * time.Minute),
 	}); err != nil {
@@ -107,28 +107,37 @@ func (uc *AuthUsecase) LoginUser(ctx context.Context, userData dto.UserLogin) er
 	return nil
 }
 
-func (uc *AuthUsecase) VerifyCode(ctx context.Context, userId uuid.UUID) (*dto.Session, error) {
-	data, err := uc.repo.GetVerifyCodeByUserId(ctx, userId)
+func (uc *AuthUsecase) VerifyCode(ctx context.Context, userReq dto.VerifyCode) (*dto.Session, error) {
+	// get user
+	user, err := uc.repo.FindUserByEmail(ctx, userReq.Email)
 	if err != nil {
 		return nil, err
 	}
 
+	data, err := uc.repo.GetVerifyCodeByUserId(ctx, user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	if data.Code != userReq.Code {
+		return nil, errors.New("invalid code")
+	}
 	// check if code is expired
-	if data.ExpiredAt.Before(time.Now()) {
+	if !data.ExpiredAt.Before(time.Now()) {
 		return nil, errors.New("code expired")
 	}
 
 	// create new session
 	if err := uc.repo.CreateSession(ctx, entity.Session{
 		ID:        uuid.New(),
-		UserID:    userId,
+		UserID:    user.ID,
 		ExpiresAt: time.Now().Add(24 * time.Hour),
 	}); err != nil {
 		return nil, err
 	}
 
 	// get session data
-	session, err := uc.repo.GetSessionIdByUserId(ctx, userId)
+	session, err := uc.repo.GetSessionIdByUserId(ctx, user.ID)
 	if err != nil {
 		return nil, err
 	}
