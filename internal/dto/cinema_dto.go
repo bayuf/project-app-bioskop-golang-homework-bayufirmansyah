@@ -11,7 +11,7 @@ type CinemaDetail struct {
 }
 
 type CinemaListResponse struct {
-	ID       int    `json:"id"`
+	ID       int    `json:"id,omitempty"`
 	Name     string `json:"name"`
 	Location string `json:"location"`
 }

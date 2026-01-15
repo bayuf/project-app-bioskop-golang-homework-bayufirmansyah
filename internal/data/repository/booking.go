@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/data/entity"
+	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/dto"
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/pkg/database"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
@@ -87,4 +88,66 @@ func (br *BookingRepository) BookingSeat(ctx context.Context, bookingID, schedul
 		return err
 	}
 	return nil
+}
+
+func (br *BookingRepository) ConfirmBooking(ctx context.Context, bookingID uuid.UUID) error {
+	query := `
+	UPDATE bookings
+	SET status = 'PAID'
+	WHERE id = $1
+		AND expired_at > NOW()
+		AND status = 'RESERVED';`
+
+	if _, err := br.db.Exec(ctx, query, bookingID); err != nil {
+		br.logger.Error("failed to confirm booking", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+func (br *BookingRepository) UpdatePayment(ctx context.Context, detail entity.Payment) error {
+	query := `
+	INSERT INTO payments (id, booking_id, payment_method, amount, status, paid_at)
+	VALUES ($1, $2, $3, $4, $5, NOW());`
+
+	if _, err := br.db.Exec(ctx, query, detail.ID, detail.BookingID, detail.PaymentMethod,
+		detail.Amount, detail.Status); err != nil {
+		br.logger.Error("failed to update payment", zap.Error(err))
+		return err
+	}
+	return nil
+}
+
+func (br *BookingRepository) GetBookingHistoryByUserId(ctx context.Context, userID uuid.UUID) (*[]dto.BookingHystory, error) {
+	query := `
+	SELECT
+		m.title, m.poster_url, m.duration_minutes, ms.show_date, c.name, c.location, s.name
+	FROM bookings b
+		JOIN movie_schedules ms ON ms.id = b.schedule_id
+		JOIN studios s ON s.id = ms.studio_id
+		JOIN cinemas c ON c.id = s.cinema_id
+		JOIN movies m ON m.id = ms.movie_id
+    WHERE b.user_id = $1
+        AND b.status = 'PAID';
+`
+
+	rows, err := br.db.Query(ctx, query, userID)
+	if err != nil {
+		br.logger.Error("failed to get booking history", zap.Error(err))
+		return nil, err
+	}
+	defer rows.Close()
+
+	var bookings []dto.BookingHystory
+	for rows.Next() {
+		var booking dto.BookingHystory
+		if err := rows.Scan(&booking.Title, &booking.PosterUrl, &booking.Duration,
+			&booking.Date, &booking.CinemaName, &booking.CinemaLocation, &booking.StudioName); err != nil {
+			br.logger.Error("failed to scan booking history", zap.Error(err))
+			return nil, err
+		}
+		bookings = append(bookings, booking)
+	}
+
+	return &bookings, nil
 }

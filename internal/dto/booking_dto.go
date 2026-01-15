@@ -22,18 +22,33 @@ type BookingReq struct {
 }
 
 type Booking struct {
-	ID         uuid.UUID       `json:"id"`
-	UserID     uuid.UUID       `json:"user_id"`
-	ScheduleID uuid.UUID       `json:"schedule_id"`
-	Status     string          `json:"status"`
+	ID         uuid.UUID       `json:"order_id"`
+	UserID     uuid.UUID       `json:"user_id,omitempty"`
+	ScheduleID uuid.UUID       `json:"schedule_id,omitempty"`
+	Status     string          `json:"status,omitempty"`
 	TotalPrice decimal.Decimal `json:"total_price"`
 	CreatedAt  time.Time       `json:"created_at"`
 	UpdatedAt  time.Time       `json:"updated_at"`
 }
 
+type BookingRes struct {
+	ID         uuid.UUID       `json:"booking_id"`
+	Status     string          `json:"status,omitempty"`
+	TotalPrice decimal.Decimal `json:"total_price"`
+}
 type BookingSeat struct {
 	BookingID     uuid.UUID `json:"booking_id"`
 	ScheduleID    uuid.UUID `json:"schedule_id"`
 	SeatID        uuid.UUID `json:"seat_id"`
 	BookingStatus string    `json:"booking_status"`
+}
+
+type BookingHystory struct {
+	Title          string    `json:"title"`
+	PosterUrl      string    `json:"poster_url"`
+	Duration       int       `json:"duration"`
+	Date           time.Time `json:"date"`
+	CinemaName     string    `json:"cinema_name"`
+	CinemaLocation string    `json:"cinema_location"`
+	StudioName     string    `json:"studio_name"`
 }

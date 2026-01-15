@@ -96,10 +96,34 @@ func (ad *BookingAdaptor) BookingSeat(w http.ResponseWriter, r *http.Request) {
 		Time:     timeClock,
 	}
 
-	if err := ad.usecase.BookingSeat(ctx, user.UserID, newBookingReq); err != nil {
+	order, err := ad.usecase.BookingSeat(ctx, user.UserID, newBookingReq)
+	if err != nil {
 		utils.ResponseFailed(w, http.StatusInternalServerError, "failed", err.Error())
 		return
 	}
 
-	utils.ResponseSuccess(w, http.StatusCreated, "success", nil)
+	utils.ResponseSuccess(w, http.StatusCreated, "success", order)
+}
+
+func (ad *BookingAdaptor) GetBookingHistory(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if r.Method != "GET" {
+		utils.ResponseFailed(w, http.StatusMethodNotAllowed, "method not allowed", nil)
+		return
+	}
+
+	// get from contex
+	user, ok := middleware.GetAuthUser(r)
+	if !ok {
+		utils.ResponseFailed(w, http.StatusUnauthorized, "unauthorized", nil)
+		return
+	}
+
+	bookings, err := ad.usecase.GetBookingHistory(ctx, user.UserID)
+	if err != nil {
+		utils.ResponseFailed(w, http.StatusInternalServerError, "failed", err.Error())
+		return
+	}
+
+	utils.ResponseSuccess(w, http.StatusOK, "success", bookings)
 }

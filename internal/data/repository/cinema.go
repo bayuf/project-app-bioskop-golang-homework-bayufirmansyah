@@ -110,6 +110,7 @@ func (cr *CinemaRepository) GetSeatStatus(ctx context.Context, scheduleId uuid.U
 	        WHEN bs.seat_id IS NULL
 				AND b.expired_at IS NULL
 				OR b.expired_at < NOW()
+				AND b.status != 'PAID'
 				THEN 'AVAILABLE'
 	        ELSE 'BOOKED'
 	    END AS status

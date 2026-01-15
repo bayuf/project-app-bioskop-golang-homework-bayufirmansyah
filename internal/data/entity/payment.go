@@ -1,4 +1,4 @@
-package dto
+package entity
 
 import (
 	"time"
@@ -7,12 +7,6 @@ import (
 	"github.com/shopspring/decimal"
 )
 
-type PaymentRes struct {
-	ID      int    `json:"id"`
-	Name    string `json:"name"`
-	LogoURL string `json:"logo_url"`
-}
-
 type Payment struct {
 	ID            uuid.UUID
 	BookingID     uuid.UUID
@@ -20,4 +14,5 @@ type Payment struct {
 	Amount        decimal.Decimal
 	Status        string
 	PaidAt        time.Time
+	CreatedAt     time.Time
 }
