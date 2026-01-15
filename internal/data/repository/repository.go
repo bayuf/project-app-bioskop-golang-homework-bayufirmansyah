@@ -10,6 +10,7 @@ type Repository struct {
 	*CinemaRepository
 	*MovieRepository
 	*BookingRepository
+	*PaymentRepository
 }
 
 func NewRepository(db database.DBExecutor, log *zap.Logger) *Repository {
@@ -18,5 +19,6 @@ func NewRepository(db database.DBExecutor, log *zap.Logger) *Repository {
 		CinemaRepository:  NewCinemaRepository(db, log),
 		MovieRepository:   NewMovieRepository(db, log),
 		BookingRepository: NewBookingRepository(db, log),
+		PaymentRepository: NewPaymentRepository(db, log),
 	}
 }

@@ -74,20 +74,22 @@ func Api(adaptor *adaptor.Adaptor, usecase *usecase.UseCase, mw *mwCustom.Middle
 		})
 	})
 
+	r.Route("/cinemas", func(r chi.Router) {
+		r.Get("/{cinema_id}", adaptor.CinemaAdaptor.GetCinema)
+		r.Get("/{cinema_id}/seats", adaptor.CinemaAdaptor.GetSeatStatus)
+		r.Get("/", adaptor.CinemaAdaptor.GetListCinemas)
+	})
+
+	r.Route("/movies", func(r chi.Router) {
+		r.Get("/", adaptor.MovieAdapter.GetMovies)
+		r.Get("/{movie_id}", adaptor.MovieAdapter.GetMovieDetail)
+	})
+
+	r.Get("/payment-methods", adaptor.PaymentAdaptor.GetPaymentMethods)
+
 	// ROUTERS PROTECTED
 	r.Group(func(r chi.Router) {
 		r.Use(mw.AuthMiddleware.SessionAuthMiddleware())
-
-		r.Route("/cinemas", func(r chi.Router) {
-			r.Get("/{cinema_id}", adaptor.CinemaAdaptor.GetCinema)
-			r.Get("/{cinema_id}/seats", adaptor.CinemaAdaptor.GetSeatStatus)
-			r.Get("/", adaptor.CinemaAdaptor.GetListCinemas)
-		})
-
-		r.Route("/movies", func(r chi.Router) {
-			r.Get("/", adaptor.MovieAdapter.GetMovies)
-			r.Get("/{movie_id}", adaptor.MovieAdapter.GetMovieDetail)
-		})
 
 		r.Route("/bookings", func(r chi.Router) {
 			r.Post("/", adaptor.BookingAdaptor.BookingSeat)

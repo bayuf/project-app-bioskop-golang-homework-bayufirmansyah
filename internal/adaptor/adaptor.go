@@ -11,6 +11,7 @@ type Adaptor struct {
 	*CinemaAdaptor
 	*MovieAdapter
 	*BookingAdaptor
+	*PaymentAdaptor
 }
 
 func NewAdaptor(useCase *usecase.UseCase, log *zap.Logger, config *utils.Configuration) *Adaptor {
@@ -19,5 +20,6 @@ func NewAdaptor(useCase *usecase.UseCase, log *zap.Logger, config *utils.Configu
 		CinemaAdaptor:  NewCinemaAdaptor(useCase.CinemaUseCase, log, config),
 		MovieAdapter:   NewMovieAdapter(useCase.MovieUseCase, log, config),
 		BookingAdaptor: NewBookingAdaptor(useCase.BookingUseCase, log, config),
+		PaymentAdaptor: NewPaymentAdaptor(useCase.PaymentUseCase, log, config),
 	}
 }
