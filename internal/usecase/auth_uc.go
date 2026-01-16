@@ -165,7 +165,9 @@ func (uc *AuthUsecase) VerifyCode(ctx context.Context, userReq dto.VerifyCode) (
 	}
 
 	// update code status as used code
-	uc.updateCodeStatus(ctx, data.ID)
+	if err := uc.updateCodeStatus(ctx, data.ID); err != nil {
+		return nil, err
+	}
 
 	// for register
 	if data.Purpose == "register" {

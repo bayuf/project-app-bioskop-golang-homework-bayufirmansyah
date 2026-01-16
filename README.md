@@ -6,4 +6,4 @@ System Ticket Bioskop
 
 |                                                               Platform                                                               |         Link Video          |
 | :----------------------------------------------------------------------------------------------------------------------------------: | :-------------------------: |
-| <img src="https://icons.iconarchive.com/icons/marcus-roberto/google-play/512/Google-Drive-icon.png" alt="Google Drive" width="25" /> | <a href="#">Google Drive</a> |
+| <img src="https://icons.iconarchive.com/icons/marcus-roberto/google-play/512/Google-Drive-icon.png" alt="Google Drive" width="25" /> | <a href="https://drive.google.com/file/d/1Vpyx_eTXfDuhlhFz85wgcd-08sZSYI2x/view?usp=sharing">Google Drive</a> |

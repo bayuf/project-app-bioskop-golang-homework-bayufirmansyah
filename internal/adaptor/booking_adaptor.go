@@ -2,7 +2,6 @@ package adaptor
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"time"
 
@@ -168,10 +167,8 @@ func (ad *BookingAdaptor) GetDetailTicket(w http.ResponseWriter, r *http.Request
 
 	ts := chi.URLParamFromCtx(ctx, "booking_id")
 
-	log.Println("DATA:", ts)
-
-	bookingIdStr := r.URL.Query().Get("booking_id")
-	bookingId, err := uuid.Parse(bookingIdStr)
+	// bookingIdStr := r.URL.Query().Get("booking_id")
+	bookingId, err := uuid.Parse(ts)
 	if err != nil {
 		utils.ResponseFailed(w, http.StatusBadRequest, "failed parse", err.Error())
 		return

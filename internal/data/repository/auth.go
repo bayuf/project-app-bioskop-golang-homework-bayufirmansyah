@@ -209,9 +209,9 @@ func (ar *AuthRepository) UpdateVerificationCodeStatus(ctx context.Context, ID u
 	query := `
 	UPDATE verification_codes
 	SET used_at = NOW()
-	WHERE id = $1 AND
-	used_at IS NULL AND
-	expires_at < NOW();
+	WHERE id = $1
+		AND	used_at IS NULL
+		AND expired_at > NOW();
 	`
 
 	commandTag, err := ar.db.Exec(ctx, query, ID)
