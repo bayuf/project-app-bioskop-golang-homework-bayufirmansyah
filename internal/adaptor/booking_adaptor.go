@@ -2,6 +2,7 @@ package adaptor
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 
@@ -9,6 +10,8 @@ import (
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/middleware"
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/internal/usecase"
 	"github.com/bayuf/project-app-bioskop-golang-homework-bayufirmansyah/pkg/utils"
+	"github.com/go-chi/chi/v5"
+	"github.com/google/uuid"
 	"go.uber.org/zap"
 	"golang.org/x/sync/errgroup"
 )
@@ -105,6 +108,34 @@ func (ad *BookingAdaptor) BookingSeat(w http.ResponseWriter, r *http.Request) {
 	utils.ResponseSuccess(w, http.StatusCreated, "success", order)
 }
 
+func (ad *BookingAdaptor) ConfirmBooking(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if r.Method != "POST" {
+		utils.ResponseFailed(w, http.StatusMethodNotAllowed, "method not allowed", nil)
+		return
+	}
+
+	detailPayment := dto.Payment{}
+	if err := json.NewDecoder(r.Body).Decode(&detailPayment); err != nil {
+		utils.ResponseFailed(w, http.StatusBadRequest, "invalid input format", err.Error())
+		return
+	}
+
+	// validate input
+	messageInvalid, err := utils.ValidateInput(&detailPayment)
+	if err != nil {
+		utils.ResponseFailed(w, http.StatusBadRequest, "invalid input data", messageInvalid)
+		return
+	}
+
+	if err := ad.usecase.Confirm(ctx, detailPayment); err != nil {
+		utils.ResponseFailed(w, http.StatusInternalServerError, "failed", err.Error())
+		return
+	}
+
+	utils.ResponseSuccess(w, http.StatusOK, "success", nil)
+}
+
 func (ad *BookingAdaptor) GetBookingHistory(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	if r.Method != "GET" {
@@ -120,6 +151,33 @@ func (ad *BookingAdaptor) GetBookingHistory(w http.ResponseWriter, r *http.Reque
 	}
 
 	bookings, err := ad.usecase.GetBookingHistory(ctx, user.UserID)
+	if err != nil {
+		utils.ResponseFailed(w, http.StatusInternalServerError, "failed", err.Error())
+		return
+	}
+
+	utils.ResponseSuccess(w, http.StatusOK, "success", bookings)
+}
+
+func (ad *BookingAdaptor) GetDetailTicket(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	if r.Method != "GET" {
+		utils.ResponseFailed(w, http.StatusMethodNotAllowed, "method not allowed", nil)
+		return
+	}
+
+	ts := chi.URLParamFromCtx(ctx, "booking_id")
+
+	log.Println("DATA:", ts)
+
+	bookingIdStr := r.URL.Query().Get("booking_id")
+	bookingId, err := uuid.Parse(bookingIdStr)
+	if err != nil {
+		utils.ResponseFailed(w, http.StatusBadRequest, "failed parse", err.Error())
+		return
+	}
+
+	bookings, err := ad.usecase.GetBookingDetail(ctx, bookingId)
 	if err != nil {
 		utils.ResponseFailed(w, http.StatusInternalServerError, "failed", err.Error())
 		return

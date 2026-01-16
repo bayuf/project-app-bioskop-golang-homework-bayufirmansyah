@@ -1,10 +1,7 @@
 package dto
 
 import (
-	"time"
-
 	"github.com/google/uuid"
-	"github.com/shopspring/decimal"
 )
 
 type PaymentRes struct {
@@ -14,10 +11,6 @@ type PaymentRes struct {
 }
 
 type Payment struct {
-	ID            uuid.UUID
-	BookingID     uuid.UUID
-	PaymentMethod int
-	Amount        decimal.Decimal
-	Status        string
-	PaidAt        time.Time
+	BookingID     uuid.UUID `json:"booking_id" validate:"required"`
+	PaymentMethod int       `json:"payment_method" validate:"required"`
 }

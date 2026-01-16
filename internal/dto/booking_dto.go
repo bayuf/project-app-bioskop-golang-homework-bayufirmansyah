@@ -52,3 +52,17 @@ type BookingHystory struct {
 	CinemaLocation string    `json:"cinema_location"`
 	StudioName     string    `json:"studio_name"`
 }
+
+type BookingDetail struct {
+	ID             uuid.UUID       `json:"order_id"`
+	Title          string          `json:"title"`
+	PosterUrl      string          `json:"poster_url"`
+	Duration       int             `json:"duration"`
+	Date           time.Time       `json:"date"`
+	Time           time.Time       `json:"time"`
+	CinemaName     string          `json:"cinema_name"`
+	CinemaLocation string          `json:"cinema_location"`
+	StudioName     string          `json:"studio_name"`
+	Seat           string          `json:"seat"`
+	TotalAmount    decimal.Decimal `json:"total_amount"`
+}

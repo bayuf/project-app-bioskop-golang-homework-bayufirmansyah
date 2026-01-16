@@ -34,6 +34,10 @@ func (uc *BookingUseCase) GetBookingHistory(ctx context.Context, userID uuid.UUI
 	return bookings, nil
 }
 
+func (uc *BookingUseCase) GetBookingDetail(ctx context.Context, bookingID uuid.UUID) (*dto.BookingDetail, error) {
+	return uc.repo.GetMyTicketByBookingId(ctx, bookingID)
+}
+
 func (uc *BookingUseCase) BookingSeat(ctx context.Context, userID uuid.UUID, req dto.BookingReq) (*dto.BookingRes, error) {
 	movieInfo, err := uc.repo.GetMovieInfobySchedule(ctx, req.CinemaID, req.Date, req.Time)
 	if err != nil {
@@ -83,6 +87,12 @@ func (uc *BookingUseCase) Confirm(ctx context.Context, detail dto.Payment) error
 
 	repoTx := repository.NewBookingRepository(tx, uc.logger)
 
+	// find booking data
+	data, err := repoTx.GetBookingData(ctx, detail.BookingID)
+	if err != nil {
+		return err
+	}
+
 	if err := repoTx.ConfirmBooking(ctx, detail.BookingID); err != nil {
 		return err
 	}
@@ -91,8 +101,8 @@ func (uc *BookingUseCase) Confirm(ctx context.Context, detail dto.Payment) error
 		ID:            uuid.New(),
 		BookingID:     detail.BookingID,
 		PaymentMethod: detail.PaymentMethod,
-		Amount:        detail.Amount,
-		Status:        "success",
+		Amount:        data.TotalPrice,
+		Status:        "SUCCESS",
 	}); err != nil {
 		return err
 	}

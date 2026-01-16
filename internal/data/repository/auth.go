@@ -98,14 +98,15 @@ func (ar *AuthRepository) CreateSession(ctx context.Context, newSession entity.S
 func (ar *AuthRepository) GetSessionIdByUserId(ctx context.Context, userId uuid.UUID) (*entity.Session, error) {
 	query := `
 	SELECT
-		token, user_id, expired_at
+		token, user_id, expired_at, created_at
 	FROM sessions
 	WHERE user_id = $1
-		AND deleted_at IS NULL;
+		AND revoked_at IS NULL
+		AND expired_at > NOW();
 	`
 	session := entity.Session{}
 	if err := ar.db.QueryRow(ctx, query, userId).
-		Scan(&session.ID, &session.UserID, &session.ExpiresAt); err != nil {
+		Scan(&session.ID, &session.UserID, &session.ExpiresAt, &session.CreatedAt); err != nil {
 		ar.logger.Error("Failed to find session by user ID", zap.Error(err))
 		return nil, err
 	}

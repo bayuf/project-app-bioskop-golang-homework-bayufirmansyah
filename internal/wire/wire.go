@@ -90,8 +90,10 @@ func Api(adaptor *adaptor.Adaptor, usecase *usecase.UseCase, mw *mwCustom.Middle
 	// ROUTERS PROTECTED
 	r.Group(func(r chi.Router) {
 		r.Use(mw.AuthMiddleware.SessionAuthMiddleware())
+		r.Post("/pay", adaptor.BookingAdaptor.ConfirmBooking)
 		r.Get("/user/bookings", adaptor.BookingAdaptor.GetBookingHistory)
 		r.Route("/bookings", func(r chi.Router) {
+			r.Get("/{booking_id}", adaptor.BookingAdaptor.GetDetailTicket)
 			r.Post("/", adaptor.BookingAdaptor.BookingSeat)
 		})
 	})

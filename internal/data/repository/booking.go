@@ -25,6 +25,22 @@ func NewBookingRepository(db database.DBExecutor, logger *zap.Logger) *BookingRe
 	}
 }
 
+func (vr BookingRepository) GetBookingData(ctx context.Context, bookingID uuid.UUID) (*entity.Booking, error) {
+	query := `
+	SELECT id, user_id, schedule_id, status, total_price
+	FROM bookings
+	WHERE id = $1
+		AND expired_at > NOW()
+		AND status = 'RESERVED'`
+
+	var booking entity.Booking
+	if err := vr.db.QueryRow(ctx, query, bookingID).Scan(&booking.ID, &booking.UserID, &booking.ScheduleID, &booking.Status, &booking.TotalPrice); err != nil {
+		vr.logger.Error("failed to scan booking data", zap.Error(err))
+		return nil, err
+	}
+	return &booking, nil
+}
+
 func (br *BookingRepository) GetMovieInfobySchedule(ctx context.Context, cinemaId int, showDate time.Time, showTime time.Time) (*entity.CinemaSchedule,
 	error) {
 
@@ -107,7 +123,7 @@ func (br *BookingRepository) ConfirmBooking(ctx context.Context, bookingID uuid.
 
 func (br *BookingRepository) UpdatePayment(ctx context.Context, detail entity.Payment) error {
 	query := `
-	INSERT INTO payments (id, booking_id, payment_method, amount, status, paid_at)
+	INSERT INTO payments (id, booking_id, payment_method_id, amount, status, paid_at)
 	VALUES ($1, $2, $3, $4, $5, NOW());`
 
 	if _, err := br.db.Exec(ctx, query, detail.ID, detail.BookingID, detail.PaymentMethod,
@@ -128,8 +144,7 @@ func (br *BookingRepository) GetBookingHistoryByUserId(ctx context.Context, user
 		JOIN cinemas c ON c.id = s.cinema_id
 		JOIN movies m ON m.id = ms.movie_id
     WHERE b.user_id = $1
-        AND b.status = 'PAID';
-`
+        AND b.status = 'PAID';`
 
 	rows, err := br.db.Query(ctx, query, userID)
 	if err != nil {
@@ -150,4 +165,30 @@ func (br *BookingRepository) GetBookingHistoryByUserId(ctx context.Context, user
 	}
 
 	return &bookings, nil
+}
+
+func (br *BookingRepository) GetMyTicketByBookingId(ctx context.Context, bookingId uuid.UUID) (*dto.BookingDetail, error) {
+	query := `
+	SELECT
+		b.id, m.title, m.poster_url, m.duration_minutes, ms.show_date, ms.show_time, c.name, c.location, s.name,
+		b.total_price, se.seat_code
+	FROM bookings b
+		JOIN movie_schedules ms ON ms.id = b.schedule_id
+		JOIN studios s ON s.id = ms.studio_id
+		JOIN cinemas c ON c.id = s.cinema_id
+		JOIN movies m ON m.id = ms.movie_id
+		JOIN booking_seats bs ON bs.booking_id = b.id
+		JOIN seats se ON se.id = bs.seat_id
+    WHERE b.id = $1
+        AND b.status = 'PAID';`
+
+	var booking dto.BookingDetail
+	if err := br.db.QueryRow(ctx, query, bookingId).
+		Scan(&booking.ID, &booking.Title, &booking.PosterUrl, &booking.Duration,
+			&booking.Date, &booking.Time, &booking.CinemaName, &booking.CinemaLocation, &booking.StudioName,
+			&booking.TotalAmount, &booking.Seat); err != nil {
+		br.logger.Error("failed to scan detail ticket", zap.Error(err))
+		return nil, err
+	}
+	return &booking, nil
 }
